@@ -40,7 +40,7 @@ class Facebook extends BaseFacebook
   }
 
   protected static $kSupportedKeys =
-    array('state', 'code', 'access_token', 'user_id');
+    array('state', 'access_token', 'code', 'redirect_uri', 'identity');
 
   /**
    * Provides the implementations of the inherited abstract
@@ -48,9 +48,9 @@ class Facebook extends BaseFacebook
    * a store for authorization codes, user ids, CSRF states, and
    * access tokens.
    */
-  protected function setPersistentData($key, $value) {
+  protected function setSessionData($key, $value) {
     if (!in_array($key, self::$kSupportedKeys)) {
-      self::errorLog('Unsupported key passed to setPersistentData.');
+      self::errorLog('Unsupported key passed to setSessionData.');
       return;
     }
 
@@ -58,9 +58,9 @@ class Facebook extends BaseFacebook
     $_SESSION[$session_var_name] = $value;
   }
 
-  protected function getPersistentData($key, $default = false) {
+  protected function getSessionData($key, $default = null) {
     if (!in_array($key, self::$kSupportedKeys)) {
-      self::errorLog('Unsupported key passed to getPersistentData.');
+      self::errorLog('Unsupported key passed to getSessionData.');
       return $default;
     }
 
@@ -69,9 +69,9 @@ class Facebook extends BaseFacebook
       $_SESSION[$session_var_name] : $default;
   }
 
-  protected function clearPersistentData($key) {
+  protected function clearSessionData($key) {
     if (!in_array($key, self::$kSupportedKeys)) {
-      self::errorLog('Unsupported key passed to clearPersistentData.');
+      self::errorLog('Unsupported key passed to clearSessionData.');
       return;
     }
 
@@ -79,15 +79,15 @@ class Facebook extends BaseFacebook
     unset($_SESSION[$session_var_name]);
   }
 
-  protected function clearAllPersistentData() {
+  protected function clearAllSessionData() {
     foreach (self::$kSupportedKeys as $key) {
-      $this->clearPersistentData($key);
+      $this->clearSessionData($key);
     }
   }
 
   protected function constructSessionVariableName($key) {
     return implode('_', array('fb',
-                              $this->getAppId(),
+                              $this->appId,
                               $key));
   }
 }
